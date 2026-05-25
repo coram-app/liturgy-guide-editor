@@ -1,0 +1,27 @@
+# Sistema (macOS)
+.DS_Store
+
+# Cache gerado pelo servidor local
+.cache/
+
+# PDFs (binários grandes, não pertencem ao código)
+*.pdf
+
+# Backups/downloads do editor
+boletim-20*.html
+boletim-21*.html
+
+# Arquivos antigos/teste
+boletim 117.html
+"Pasta Boletim 117_Teste 2"/
+
+# Diretórios de IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Node (caso adicionemos Netlify Functions no futuro)
+node_modules/
+.netlify/

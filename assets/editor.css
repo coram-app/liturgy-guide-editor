@@ -1,0 +1,347 @@
+/* ============================================================
+   editor.css — Estilos da CARCAÇA do editor (toolbar + chrome).
+   Independente de document.css.
+   ============================================================ */
+
+/* Variáveis locais ao editor (chrome — toolbar, popup, dropdown, inputs).
+   Por padrão: tema claro. Sobreposto por body.dark abaixo. */
+:root {
+  --tb-accent: #8c3238;
+  --tb-bg: rgba(255, 255, 255, 0.7);
+  --tb-text: #333;
+  --tb-text-muted: #555;
+  --tb-border: rgba(0, 0, 0, 0.10);
+  --tb-divider: rgba(0, 0, 0, 0.12);
+  --tb-hover: rgba(0, 0, 0, 0.06);
+  --tb-active: rgba(0, 0, 0, 0.10);
+  --tb-input-bg: #fff;
+  --tb-input-text: #333;
+  --tb-input-border: #ccc;
+  --tb-popup-bg: rgba(255, 255, 255, 0.85);
+  --tb-dropdown-bg: #fff;
+  --tb-dropdown-hover: #f6f6f6;
+  --tb-secondary-bg: #fff;
+  --tb-ghost-text: #777;
+  --tb-ghost-border: #ccc;
+}
+body.dark {
+  --tb-bg: rgba(28, 28, 28, 0.78);
+  --tb-text: #e8e8e8;
+  --tb-text-muted: #a8a8a8;
+  --tb-border: rgba(255, 255, 255, 0.10);
+  --tb-divider: rgba(255, 255, 255, 0.14);
+  --tb-hover: rgba(255, 255, 255, 0.08);
+  --tb-active: rgba(255, 255, 255, 0.14);
+  --tb-input-bg: #2a2826;
+  --tb-input-text: #ececec;
+  --tb-input-border: #444;
+  --tb-popup-bg: rgba(30, 30, 30, 0.85);
+  --tb-dropdown-bg: #2a2826;
+  --tb-dropdown-hover: #3a3836;
+  --tb-secondary-bg: transparent;
+  --tb-ghost-text: #aaa;
+  --tb-ghost-border: rgba(255, 255, 255, 0.22);
+}
+
+/* Toolbar flutuante no topo, centralizada, com efeito blur */
+.toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--tb-bg);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  padding: 8px 10px;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+  border: 1px solid var(--tb-border);
+  color: var(--tb-text);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  align-items: center;
+}
+
+/* Empurra o conteúdo do documento pra baixo, fora da área da toolbar */
+body { padding-top: 64px; }
+
+.toolbar .status {
+  font-size: 11px;
+  color: var(--tb-text-muted);
+  padding: 0 6px;
+  min-width: 90px;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.toolbar button {
+  background: var(--tb-accent);
+  color: #fff;
+  border: 0;
+  padding: 7px 12px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .15s, transform .05s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.toolbar button:hover { opacity: .88; }
+.toolbar button:active { transform: translateY(1px); }
+.toolbar button.secondary {
+  background: var(--tb-secondary-bg);
+  color: var(--tb-accent);
+  border: 1px solid var(--tb-accent);
+}
+.toolbar button.ghost {
+  background: transparent;
+  color: var(--tb-ghost-text);
+  border: 1px solid var(--tb-ghost-border);
+}
+.toolbar button.icon-only {
+  padding: 7px 9px;
+  gap: 0;
+}
+.toolbar button.icon-only .mi { margin: 0; }
+
+.toolbar .divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--tb-divider);
+  margin: 0 2px;
+}
+
+/* Popup flutuante de formatação — aparece perto do texto selecionado */
+.format-popup {
+  position: fixed;
+  z-index: 1100;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--tb-popup-bg);
+  color: var(--tb-text);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--tb-border);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  /* Pequena animação ao aparecer */
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .12s ease, transform .12s ease;
+}
+body.edit-mode.has-selection .format-popup {
+  display: inline-flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.format-popup .popup-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.format-popup .popup-row.spacing-control {
+  display: none;
+  padding-top: 4px;
+  border-top: 1px solid var(--tb-border);
+  margin-top: 2px;
+}
+/* A linha de espaçamento só aparece quando o cursor está num bloco editável */
+body.edit-mode.has-selection.in-block .format-popup .popup-row.spacing-control {
+  display: flex;
+}
+
+.format-popup .popup-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--tb-divider);
+  margin: 2px 2px;
+}
+.format-popup button.fmt {
+  background: transparent;
+  color: var(--tb-text);
+  border: 0;
+  min-width: 30px;
+  padding: 5px 8px;
+  font-size: 13px;
+  justify-content: center;
+  gap: 0;
+  border-radius: 4px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.format-popup button.fmt:hover { background: var(--tb-hover); }
+.format-popup button.fmt:active { background: var(--tb-active); }
+.format-popup button.fmt b { font-weight: 700; }
+.format-popup button.fmt i { font-style: italic; }
+
+.format-popup .spacing-icon {
+  color: var(--tb-text-muted);
+  font-size: 18px;
+  padding: 0 4px;
+}
+.format-popup .spacing-value {
+  min-width: 42px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--tb-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Linha de override de número de estrofe — só aparece em <li> de ol.verses */
+.format-popup .popup-row.verse-number-control {
+  display: none;
+  padding-top: 4px;
+  border-top: 1px solid var(--tb-border);
+  margin-top: 2px;
+  align-items: center;
+  gap: 4px;
+}
+body.edit-mode.has-selection.in-verse-li .format-popup .popup-row.verse-number-control {
+  display: flex;
+}
+.verse-number-input {
+  width: 60px;
+  border: 1px solid var(--tb-input-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+  background: var(--tb-input-bg);
+  color: var(--tb-input-text);
+}
+.verse-number-input:focus {
+  outline: 2px solid var(--tb-accent);
+  outline-offset: 0;
+}
+/* Remove os "spinners" nativos do input number */
+.verse-number-input::-webkit-outer-spin-button,
+.verse-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.verse-number-input { -moz-appearance: textfield; }
+
+@media print {
+  .format-popup { display: none !important; }
+}
+
+
+.toolbar button.fmt {
+  background: var(--tb-input-bg);
+  color: var(--tb-input-text);
+  border: 1px solid var(--tb-input-border);
+  min-width: 32px;
+  padding: 5px 8px;
+  font-size: 13px;
+  justify-content: center;
+  gap: 0;
+}
+.toolbar button.fmt:hover { background: #f5f5f5; }
+.toolbar button.fmt b { font-weight: 700; }
+.toolbar button.fmt i { font-style: italic; }
+
+/* ============== ÍCONES (Material Symbols Outlined) ============== */
+.mi {
+  font-family: 'Material Symbols Outlined';
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  /* Material Symbols variable axes */
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.mi.caret { font-size: 20px; margin-left: -2px; }
+.mi.only  { font-size: 16px; }
+
+/* ====================== DROPDOWN ====================== */
+.dropdown { position: relative; display: inline-block; }
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: auto;
+  background: var(--tb-dropdown-bg);
+  border: 1px solid var(--tb-border);
+  border-radius: 7px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+  min-width: 160px;
+  overflow: hidden;
+  z-index: 1001;
+  padding: 4px 0;
+}
+.dropdown.open .dropdown-menu { display: block; }
+.dropdown-menu button {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  background: var(--tb-dropdown-bg);
+  color: var(--tb-text);
+  border: 0;
+  border-radius: 0;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  gap: 8px;
+  align-items: center;
+}
+.dropdown-menu button:hover { background: var(--tb-dropdown-hover); }
+.dropdown-menu .mi { font-size: 18px; color: var(--tb-accent); }
+
+/* Highlights visuais quando em modo de edição */
+body.edit-mode [contenteditable="true"]:hover {
+  outline: 1px dashed rgba(140, 50, 56, .45);
+  outline-offset: 2px;
+  cursor: text;
+}
+body.edit-mode [contenteditable="true"]:focus {
+  outline: 2px solid var(--tb-accent);
+  outline-offset: 2px;
+  background: rgba(140, 50, 56, .06);
+}
+
+/* Indicador de loading enquanto o editor carrega o documento */
+#document-host:empty::before {
+  content: "Carregando documento…";
+  display: block;
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Na impressão, esconde toda a chrome do editor */
+@media print {
+  .toolbar { display: none !important; }
+  body { padding-top: 0 !important; }
+  body.edit-mode [contenteditable="true"] {
+    outline: 0 !important;
+    background: transparent !important;
+  }
+}

@@ -1,0 +1,48 @@
+# Configuração do Netlify para o Liturgy Guide Editor.
+# Hospedagem estática — sem build, apenas servir os arquivos.
+
+[build]
+  publish = "."
+
+# Quando o usuário acessar a raiz (/), redireciona pro editor
+[[redirects]]
+  from = "/"
+  to = "/editor.html"
+  status = 302
+
+# Quando /api/* for chamado em produção (sem servidor Python),
+# retorna 404 silencioso — o editor.js já trata isso como "modo browser"
+# (futuramente, mover pra /.netlify/functions/* se implementar Functions)
+[[redirects]]
+  from = "/api/*"
+  to = "/404"
+  status = 404
+  force = true
+
+# Cache agressivo para fontes (não mudam)
+[[headers]]
+  for = "/assets/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache para imagens/logo
+[[headers]]
+  for = "/assets/brand/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# CSS/JS — cache moderado (rebuild se mudar o conteúdo)
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"

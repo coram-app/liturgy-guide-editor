@@ -1,0 +1,496 @@
+/* ============================================================
+   document.css — Estilos do BOLETIM (documento).
+   Pode ser usado standalone abrindo boletim.html no navegador
+   ou via editor.html (que faz fetch e injeta o conteúdo).
+   ============================================================ */
+
+/* ===================== FONTES LOCAIS ===================== */
+@font-face {
+  font-family: "Collier";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("fonts/Collier-Light.otf") format("opentype");
+}
+@font-face {
+  font-family: "Collier";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/Collier-Book.otf") format("opentype");
+}
+@font-face {
+  font-family: "Collier";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/Collier-Semibold.otf") format("opentype");
+}
+@font-face {
+  font-family: "Bitter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("fonts/Bitter-VariableFont_wght.ttf") format("truetype-variations"),
+       url("fonts/Bitter-VariableFont_wght.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Bitter";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("fonts/Bitter-Italic-VariableFont_wght.ttf") format("truetype-variations"),
+       url("fonts/Bitter-Italic-VariableFont_wght.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("fonts/InterVariable.woff2") format("woff2-variations"),
+       url("fonts/InterVariable.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("fonts/InterVariable-Italic.woff2") format("woff2-variations"),
+       url("fonts/InterVariable-Italic.woff2") format("woff2");
+}
+
+:root {
+  --wine: #8c3238;
+  --ink: #111111;
+  --muted: #555;
+
+  /* A4 paisagem dividida em 3 painéis (tri-fold) */
+  --sheet-w: 297mm;
+  --sheet-h: 210mm;
+  --panel-w: 99mm;          /* 297 / 3 */
+  --panel-pad: 8mm;
+
+  --f-display: "Collier", "EB Garamond", Georgia, serif;
+  --f-serif:   "Bitter", "Georgia", serif;
+  --f-sans:    "Inter", "Helvetica Neue", Arial, sans-serif;
+  --f-body:    "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  /* === TEMA — claro por padrão === */
+  --body-bg: #d9d9d9;
+}
+body.dark {
+  --body-bg: #1D1B1A;
+}
+
+/* === RESET (cirúrgico) === */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code, del, dfn,
+em, img, ins, kbd, q, s, samp, small, strike, strong,
+sub, sup, tt, var, b, u, i, center,
+dl, dt, dd, ol, ul, li, fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, figure, figcaption,
+footer, header, hgroup, menu, nav, output, ruby,
+section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+}
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+h1, h2, h3, h4, h5, h6 { font-size: 1em; font-weight: 400; }
+ol, ul { list-style: none; }
+blockquote, q { quotes: none; }
+blockquote::before, blockquote::after,
+q::before, q::after { content: none; }
+b, strong { font-weight: 700; }
+i, em { font-style: italic; }
+sup, sub {
+  font-size: 0.7em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup { top: -0.5em; }
+sub { bottom: -0.25em; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* === BASE === */
+html {
+  font-family: var(--f-body);
+  font-size: 8.5pt;
+  line-height: 1.35;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+body {
+  background: var(--body-bg);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.book {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12mm;
+  padding: 12mm 0;
+}
+
+/* === FOLHA TRI-FOLD === */
+.sheet {
+  width: var(--sheet-w);
+  height: var(--sheet-h);
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0,0,0,.18);
+  border-radius: 6px; /* estético no preview — removido na impressão */
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+/* Marcas de dobra: ticks de 8mm a 4mm da borda (zona segura de impressão).
+   Usam border-left (foreground) pra garantir impressão confiável,
+   diferente de background-gradient que muitos navegadores omitem na impressão. */
+.fold-tick {
+  position: absolute;
+  width: 0;
+  height: 5mm;
+  border-left: 0.6pt solid rgba(0, 0, 0, .55);
+  pointer-events: none;
+  z-index: 1;
+}
+.fold-tick.tl { top: 4mm;     left: var(--panel-w); }
+.fold-tick.bl { bottom: 4mm;  left: var(--panel-w); }
+.fold-tick.tr { top: 4mm;     left: calc(var(--panel-w) * 2); }
+.fold-tick.br { bottom: 4mm;  left: calc(var(--panel-w) * 2); }
+
+.panel {
+  width: var(--panel-w);
+  height: 100%;
+  padding: 7mm 7mm 10mm 7mm;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel-footer {
+  position: absolute;
+  left: 7mm;
+  right: 7mm;
+  bottom: 4mm;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 8.5pt;
+  color: var(--ink);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.panel-footer .colophon { font-size: 8.5pt; }
+.panel-footer .page-number { font-size: 9pt; }
+.panel-footer.center-only { justify-content: center; }
+.panel-footer.left-only   { justify-content: flex-start; }
+.panel-footer.right-only  { justify-content: flex-end; }
+
+h1, h2, h3, h4, p { margin: 0; }
+p { margin-bottom: 2mm; }
+
+/* === TÍTULOS === */
+.section-title {
+  font-family: var(--f-display);
+  color: var(--wine);
+  font-weight: 700;
+  font-size: 10pt;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 2mm;
+  margin-bottom: 1mm;
+}
+.subsection-title {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 9.2pt;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 1.2mm;
+  margin-bottom: 0.6mm;
+}
+.meta {
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 8.5pt;
+  margin-bottom: 0.8mm;
+}
+.author {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 7.8pt;
+  color: var(--ink);
+  margin-bottom: 1.2mm;
+}
+
+/* === ESTROFES === */
+ol.verses {
+  list-style: none;
+  counter-reset: verse;
+  padding: 0;
+  margin: 0 0 1.2mm 0;
+}
+ol.verses[start="2"] { counter-reset: verse 1; }
+ol.verses[start="3"] { counter-reset: verse 2; }
+ol.verses[start="4"] { counter-reset: verse 3; }
+ol.verses[start="5"] { counter-reset: verse 4; }
+ol.verses[start="6"] { counter-reset: verse 5; }
+ol.verses > li {
+  counter-increment: verse;
+  position: relative;
+  padding-left: 4.5mm;
+  margin-bottom: 2mm;
+}
+ol.verses > li.refrain { counter-increment: none; }
+ol.verses > li::before {
+  content: counter(verse) ".";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--f-serif);
+  font-style: italic;
+  color: var(--muted);
+  font-size: 8pt;
+}
+ol.verses > li.refrain::before { content: "R."; }
+ol.verses > li.refrain { font-weight: 700; }
+ol.verses p { margin: 0; }
+
+/* Override manual de número via atributo data-num.
+   Permite numerar a estrofe com qualquer valor (ignora o contador). */
+ol.verses > li[data-num] { counter-increment: none; }
+ol.verses > li[data-num]::before { content: attr(data-num) "."; }
+
+/* Bloco de letras com espaço entre estrofes (pra hinos não numerados).
+   O valor é ajustável por elemento via inline style="--lyric-gap: Xmm;"
+   (controlado pelo editor através do widget de espaçamento). */
+.lyric-block p {
+  margin-bottom: var(--lyric-gap, 3.5mm);
+}
+.lyric-block p:last-child {
+  margin-bottom: 0;
+}
+
+/* === LEITURA RESPONSIVA === */
+.responsive {
+  line-height: 1.3;
+}
+.responsive p {
+  margin-bottom: 0.9mm;
+  text-align: justify;
+}
+.role { font-weight: 700; }
+.verse-num { font-weight: 700; }
+
+/* === ESCRITURAS === */
+.scripture-ref {
+  font-family: var(--f-serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 8pt;
+  margin-bottom: 0.8mm;
+}
+/* Subtítulo de momento litúrgico */
+.subhead {
+  font-family: var(--f-serif);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 8.5pt;
+  margin-bottom: 0.8mm;
+}
+.subhead .ref {
+  font-weight: 400;
+  font-style: italic;
+}
+blockquote {
+  font-family: var(--f-body);
+  margin: 0 0 1.5mm 0;
+  font-size: 8.3pt;
+  line-height: 1.35;
+  text-align: justify;
+}
+
+.footnote {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 7pt;
+  color: var(--ink);
+  margin-top: 0.8mm;
+}
+
+sup { font-size: 6.5pt; }
+
+/* Placeholder visível pra conteúdo a inserir */
+.placeholder {
+  color: #999;
+  font-style: italic;
+  font-size: 8pt;
+  margin: 1mm 0 1.5mm 0;
+}
+
+/* === CABEÇALHO LITURGIA === */
+.lit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 10.5pt;
+  letter-spacing: 0.01em;
+  padding-bottom: 1.5mm;
+  margin-bottom: 2.5mm;
+  border-bottom: 0.4pt solid var(--ink);
+}
+.lit-header .cross {
+  display: inline-block;
+  width: 2.2mm;
+  height: auto;
+}
+
+/* === CAPA === */
+.cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  padding: 18mm var(--panel-pad) 12mm var(--panel-pad);
+}
+.cover .logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2mm;
+  margin-top: 80px;
+}
+.cover .logo img {
+  width: 55mm;
+  height: auto;
+  display: block;
+}
+.cover .cover-verse { max-width: 82mm; }
+.cover .verse {
+  font-family: var(--f-body);
+  font-size: 9.2pt;
+  line-height: 1.45;
+  text-align: center;
+}
+.cover .ref {
+  font-family: var(--f-serif);
+  font-weight: 600;
+  font-size: 8.5pt;
+  letter-spacing: 0.08em;
+  margin-top: 2.5mm;
+}
+.cover .cover-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9mm;
+  width: 100%;
+}
+.cover .cover-notice {
+  font-family: var(--f-body);
+  font-size: 8.5pt;
+  line-height: 1.5;
+  max-width: 82mm;
+}
+.cover .cover-colophon {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 9.5pt;
+  letter-spacing: 0.02em;
+}
+
+/* === AGENDA === */
+.agenda {
+  margin-top: auto;   /* gruda na base do painel (panel-body é flex column) */
+  padding-top: 6mm;   /* respiro visual em relação ao conteúdo acima */
+}
+.agenda-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 12pt;
+  margin-bottom: 2mm;
+}
+.agenda-day {
+  font-family: var(--f-serif);
+  font-weight: 600;
+  font-style: normal;
+}
+.agenda-item {
+  font-family: var(--f-body);
+  font-size: 8pt;
+  line-height: 1.4;
+  margin-bottom: 2mm;
+}
+.agenda-item em {
+  font-style: italic;
+}
+.agenda-info {
+  font-style: italic;
+  text-decoration: underline;
+}
+
+/* === QR PIX === */
+.pix {
+  display: flex;
+  gap: 2.5mm;
+  align-items: center;
+  margin: 0 0 1.5mm 0;
+}
+/* Quando o QR vem logo após uma estrofe de hino, encosta mais perto */
+ol.verses + .pix {
+  margin-top: -1mm;
+}
+.pix img {
+  width: 17mm;
+  height: 17mm;
+  object-fit: contain;
+  display: block;
+}
+.pix .pix-text {
+  font-family: var(--f-body);
+  font-size: 7.8pt;
+  line-height: 1.3;
+}
+
+/* === IMPRESSÃO === */
+@page {
+  size: 297mm 210mm;
+  margin: 0;
+}
+@media print {
+  body { background: #fff; }
+  .book { gap: 0; padding: 0; }
+  .sheet {
+    box-shadow: none;
+    border-radius: 0;
+    page-break-after: always;
+  }
+  .sheet:last-child { page-break-after: auto; }
+  /* As marcas de dobra (.sheet::before/::after) continuam visíveis na impressão.
+     Garante o background quando "imprimir cores de fundo" está desligado no diálogo. */
+}

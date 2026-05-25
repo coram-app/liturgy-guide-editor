@@ -1,0 +1,63 @@
+%!Adobe-FontList 1.25
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Invalid
+OutlineFileName:/Users/felipemoraes/Desktop/Trabalhos/IB Redenção/Boletins/Ano 3/html/Pasta Boletim 117_Teste 2/Document fonts/AdobeFnt25.lst
+FileLength:1270
+FileModTime:801237414
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Bitter-ThinItalic
+FamilyName:Bitter
+StyleName:Thin Italic
+MenuName:Bitter Thin
+FamilyPrefix:BitterItalic
+StyleBits:1
+WeightClass:100
+WidthClass:5
+AngleClass:1
+FullName:Bitter Thin Italic
+WritingScript:Roman
+OutlineFileName:/Users/felipemoraes/Desktop/Trabalhos/IB Redenção/Boletins/Ano 3/html/Pasta Boletim 117_Teste 2/Document fonts/Bitter-Italic-VariableFont_wght.ttf
+DataFormat:sfntData
+hasSVG:no
+hasSBIX:no
+hasCOLR:no
+VariableFontType:TrueTypeVariableFont
+FileLength:308024
+FileModTime:778723714
+NameArray:0,Win,1,Bitter Thin
+NameArray:0,Win,16,Bitter
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Bitter-Thin
+FamilyName:Bitter
+StyleName:Thin
+MenuName:Bitter Thin
+FamilyPrefix:Bitter
+StyleBits:0
+WeightClass:100
+WidthClass:5
+AngleClass:0
+FullName:Bitter Thin
+WritingScript:Roman
+OutlineFileName:/Users/felipemoraes/Desktop/Trabalhos/IB Redenção/Boletins/Ano 3/html/Pasta Boletim 117_Teste 2/Document fonts/Bitter-VariableFont_wght.ttf
+DataFormat:sfntData
+hasSVG:no
+hasSBIX:no
+hasCOLR:no
+VariableFontType:TrueTypeVariableFont
+FileLength:320532
+FileModTime:778723714
+NameArray:0,Win,1,Bitter Thin
+NameArray:0,Win,16,Bitter
+%EndFont
+
